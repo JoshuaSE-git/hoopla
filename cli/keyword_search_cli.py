@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-
 import argparse
 import json
 import string
+import application
+
+from nltk.stem import PorterStemmer
+
 
 MOVIE_DATA_PATH = "data/movies.json"
+STOP_WORDS_DATA_PATH = "data/stopwords.txt"
 MAX_SEARCH_RESULTS = 5
 
 
@@ -17,39 +21,24 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    match args.command:
-        case "search":
-            search(args.query, MOVIE_DATA_PATH, MAX_SEARCH_RESULTS)
-        case _:
-            parser.print_help()
+    stemmer = PorterStemmer()
+    translation = str.maketrans("", "", string.punctuation)
 
-
-def search(query: str, filepath: str, num_results: int):
-    with open(filepath, "r") as f:
+    with open(MOVIE_DATA_PATH, "r") as f:
         data = json.load(f)
 
-    translation_map = str.maketrans({c: None for c in string.punctuation})
+    with open(STOP_WORDS_DATA_PATH, "r") as f:
+        stopwords = f.read().splitlines()
 
-    print("Searching for: " + query)
-    results = []
-    processed_query = process(query, translation_map)
-    for movie in data["movies"]:
-        processed_title = process(movie["title"], translation_map)
+    app = application.Application(
+        data=data, stop_words=stopwords, stemmer=stemmer, translation=translation
+    )
 
-        for s1 in processed_query:
-            for s2 in processed_title:
-                if s1 in s2:
-                    results.append(movie)
-
-        if len(results) >= num_results:
-            break
-
-    for i, movie in enumerate(sorted(results, key=lambda x: x["id"]), start=1):
-        print(f"{i}. {movie['title']}")
-
-
-def process(s: str, trans: dict):
-    return set(filter(lambda x: x != "", s.lower().translate(trans).split()))
+    match args.command:
+        case "search":
+            app.search(args.query, MAX_SEARCH_RESULTS)
+        case _:
+            parser.print_help()
 
 
 if __name__ == "__main__":
