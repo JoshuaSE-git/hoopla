@@ -1,5 +1,38 @@
+import re
+
 from .semantic_search import SemanticSearch
 from .helpers import load_movies
+
+
+def semantic_chunk(text: str, size: int, overlap: int):
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+
+    chunks = []
+    i = 0
+    while i < len(sentences) - overlap:
+        chunks.append(" ".join(sentences[i : i + size]))
+        i += size - overlap
+
+    print(f"Semantically chunking {len(text)} characters")
+    for i, chunk in enumerate(chunks, start=1):
+        print(f"{i}. {chunk}")
+
+
+def chunk(text: str, size: int, overlap: int):
+    if not overlap:
+        overlap = size // 5
+
+    words = text.split()
+
+    chunks = []
+    i = 0
+    while i < len(words) - overlap:
+        chunks.append(" ".join(words[i : i + size]))
+        i += size - overlap
+
+    print(f"Chunking {len(text)} characters")
+    for i, chunk in enumerate(chunks, start=1):
+        print(f"{i}. {chunk}")
 
 
 def verify_model():
