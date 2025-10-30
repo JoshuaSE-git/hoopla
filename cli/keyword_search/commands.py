@@ -1,7 +1,7 @@
 import math
 
-from index import InvertedIndex
-from helpers import DEFAULT_SEARCH_LIMIT, tokenize_text
+from .index import InvertedIndex
+from .helpers import BM25_K1, BM25_B, DEFAULT_SEARCH_LIMIT, tokenize_text
 
 
 def build_command() -> None:
@@ -86,6 +86,25 @@ def bmf25idf_command(term: str):
     score = idx.get_bm25_idf(term)
 
     print(f"BM25 IDF score of '{term}': {score:.2f}")
+
+
+def bm25tf_command(doc_id: int, term: str, k1: float = BM25_K1, b: float = BM25_B):
+    idx = InvertedIndex()
+    idx.load()
+
+    bm25_tf = idx.get_bm25_tf(doc_id, term, k1, b)
+
+    print(f"BM25 TF score of '{term}' in document '{doc_id}': {bm25_tf:.2f}")
+
+
+def bm25_command(query: str, limit: int, k1: float, b: float):
+    idx = InvertedIndex()
+    idx.load()
+
+    results = idx.bm25_search(query, limit, k1, b)
+
+    for i, res in enumerate(results, 1):
+        print(f"{i}. ({res[0]['id']}) {res[0]['title']} - Score: {res[1]:.2f}")
 
 
 def _print_results(results: list[dict]) -> None:
