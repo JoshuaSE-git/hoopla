@@ -6,8 +6,8 @@ from .helpers import CACHE_DIR, cosine_similarity
 
 
 class SemanticSearch:
-    def __init__(self):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+    def __init__(self, model_name="all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
         self.documents = None
         self.embeddings = None
         self.document_map = {}

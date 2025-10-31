@@ -5,13 +5,15 @@ import argparse
 from semantic_search.helpers import DEFAULT_SEARCH_LIMIT
 
 from semantic_search.commands import (
-    verify_model,
-    embed_text,
-    verify_embeddings,
-    embed_query_text,
-    search,
-    chunk,
-    semantic_chunk,
+    handler_verify_model,
+    handler_embed_text,
+    handler_verify_embeddings,
+    handler_embed_query,
+    handler_search,
+    handler_chunk,
+    handler_semantic_chunk,
+    handler_embed_chunks,
+    handler_search_chunks,
 )
 
 
@@ -70,23 +72,39 @@ def main():
         "--overlap", type=int, default=0, help="The overlap size between chunks"
     )
 
+    embed_chunks_parser = subparsers.add_parser(
+        "embed_chunks", help="Create chunked embeddings from document"
+    )
+
+    search_chunked_parser = subparsers.add_parser(
+        "search_chunked", help="Search for movies using chunked semantic search"
+    )
+    search_chunked_parser.add_argument("query", help="The target query")
+    search_chunked_parser.add_argument(
+        "--limit", type=int, default=5, help="The number of results"
+    )
+
     args = parser.parse_args()
 
     match args.command:
         case "verify":
-            verify_model()
+            handler_verify_model()
         case "embed_text":
-            embed_text(args.text)
+            handler_embed_text(args.text)
         case "verify_embeddings":
-            verify_embeddings()
+            handler_verify_embeddings()
         case "embedquery":
-            embed_query_text(args.query)
+            handler_embed_query(args.query)
         case "search":
-            search(args.query, args.limit)
+            handler_search(args.query, args.limit)
         case "chunk":
-            chunk(args.text, args.chunk_size, args.overlap)
+            handler_chunk(args.text, args.chunk_size, args.overlap)
         case "semantic_chunk":
-            semantic_chunk(args.text, args.max_chunk_size, args.overlap)
+            handler_semantic_chunk(args.text, args.max_chunk_size, args.overlap)
+        case "embed_chunks":
+            handler_embed_chunks()
+        case "search_chunked":
+            handler_search_chunks(args.query, args.limit)
         case _:
             parser.print_help()
 
